@@ -1,36 +1,18 @@
 
-def create_map(nb_col, nb_line):
-    map = []
-    for i in range(nb_line):
-        row = []
-        for j in range(nb_col):
-            row.append(0)
-        map.append(row)
+from map import Map
+from player import Player
 
-    return map
-
-
-def display_map(map):
-
-    print("\t", end="")
-    for i in range(len(map)):
-        print(i, end="\t")
-    print("\n\t", end="")
-    for row in map:
-        print("_", end="\t")
-    print("")
-
-    row_number = 0
-
-    for row in map:
-        print(row_number, "|", end="\t")
-        for col in row:
-            print(col, end="\t")
-        print("")
-        row_number += 1
 
 def prog():
-    display_map(create_map(8, 8))
+
+    map = Map()
+    print(map)
+
+    p1 = Player("Théo", "white", [1, 2, 3])
+    p2 = Player("Martin", "Black")
+
+    print(p1)
+    print(p2)
 
 
 if __name__ == "__main__":
