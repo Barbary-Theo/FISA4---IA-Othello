@@ -1,3 +1,5 @@
+from rich.text import Text
+
 from player import Player
 
 
@@ -47,3 +49,42 @@ class Game:
         self.print()
         self.p1.print()
         self.p2.print()
+
+    def update_map(self):
+        for pawn in self.p1.pawn_set:
+            self.map[pawn.get("x")][pawn.get("y")] = "o"
+
+        for pawn in self.p2.pawn_set:
+            self.map[pawn.get("x")][pawn.get("y")] = "x"
+
+    def start_game(self):
+
+        from rich import console
+        console = console.Console()
+
+        is_game_terminate = False
+
+        while not is_game_terminate:
+            console.print(
+                Text(
+                    "\n-------------------------------------------------------------------------------- Player 1 "
+                    "---------------------------------------------------------------------\n"),
+                justify="center", style="green"
+            )
+
+            self.print()
+
+            self.p1.play(self.map)
+            self.update_map()
+
+            console.print(
+                Text(
+                    "\n-------------------------------------------------------------------------------- Player 2 "
+                    "---------------------------------------------------------------------\n"),
+                justify="center", style="cyan"
+            )
+
+            self.print()
+
+            self.p2.play(self.map)
+            self.update_map()
