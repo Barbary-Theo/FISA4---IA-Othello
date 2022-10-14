@@ -11,28 +11,27 @@ class Map:
         for i in range(self.nb_row):
             row = []
             for j in range(self.nb_col):
-                row.append(0)
+                row.append(".")
             map.append(row)
 
         return map
 
-    def __str__(self):
+    def print(self):
 
-        string = "\t"
+        from rich import console
+        console = console.Console()
+
+        console.print("    ", end="")
         for i in range(len(self.map)):
-            string += str(i) + "\t"
-        string += "\n\t"
-        for row in self.map:
-            string += "_\t"
-        string += "\n"
+            console.print("[red]" + str(i) + "[/]", style="underline red", end="")
+            console.print("  ", end="")
 
+        console.print("")
         row_number = 0
 
         for row in self.map:
-            string += str(row_number) + "|\t"
+            string = "[red]" + str(row_number) + "|  " + "[/]"
             for col in row:
-                string += str(col) + "\t"
-            string += "\n"
+                string += str(col) + "  "
             row_number += 1
-
-        return string
+            console.print(string)
