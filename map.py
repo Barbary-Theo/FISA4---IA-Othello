@@ -23,7 +23,7 @@ class Map:
 
         console.print("    ", end="")
         for i in range(len(self.map)):
-            console.print("[red]" + str(i) + "[/]", style="underline red", end="")
+            console.print("[red]" + str(i) + "[/]", style="underline", end="")
             console.print("  ", end="")
 
         console.print("")
@@ -35,3 +35,5 @@ class Map:
                 string += str(col) + "  "
             row_number += 1
             console.print(string)
+
+
