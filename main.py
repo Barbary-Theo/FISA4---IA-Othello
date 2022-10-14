@@ -1,15 +1,15 @@
 
-from map import Map
+from game import Game
 from player import Player
 
 
 def prog():
 
-    map = Map()
-    map.print()
-
     p1 = Player("Théo", "white", [1, 2, 3])
     p2 = Player("Martin", "Black")
+
+    game = Game(p1, p2, 8, 8)
+    game.print()
 
 
 

@@ -1,16 +1,18 @@
+from player import Player
 
-class Map:
 
-    def __init__(self, nb_column = 8, nb_row = 8):
-        self.nb_col = nb_column
-        self.nb_row = nb_row
-        self.map = self.init_map()
+class Game:
 
-    def init_map(self):
+    def __init__(self, p1: Player = None, p2: Player = None, nb_row=8, nb_col=8):
+        self.p1 = p1
+        self.p2 = p2
+        self.map = self.init_map(nb_row, nb_col)
+
+    def init_map(self, nb_row, nb_col):
         map = []
-        for i in range(self.nb_row):
+        for i in range(nb_row):
             row = []
-            for j in range(self.nb_col):
+            for j in range(nb_col):
                 row.append(".")
             map.append(row)
 
@@ -35,5 +37,3 @@ class Map:
                 string += str(col) + "  "
             row_number += 1
             console.print(string)
-
-
