@@ -3,12 +3,13 @@ from rich.markdown import Markdown
 
 class Player:
 
-    def __init__(self, name: str = None, couleur: str = "white", pawn_set: list = None):
+    def __init__(self, name: str = None, couleur: str = "white", pawn_set: list = None, type: str = "real"):
         if pawn_set is None:
             pawn_set = []
         self.name = name
         self.couleur = couleur
         self.pawn_set = pawn_set
+        self.type = type
 
     def print(self):
 
@@ -30,11 +31,12 @@ class Player:
 
         while not is_a_good_placement:
 
+            console.print("\nChoose a position to put your pawn", style="yellow")
             try:
-                console.print("Column : ", style="yellow", end="")
-                x = int(input())
-                console.print("Row : ", style="yellow", end="")
+                console.print("-> Column number : ", style="yellow", end="")
                 y = int(input())
+                console.print("-> Row number : ", style="yellow", end="")
+                x = int(input())
                 nice_input = True
 
             except Exception as e:
@@ -44,14 +46,22 @@ class Player:
 
             if nice_input:
                 try:
-                    if map[y][x] == ".":
+                    row = map[x]
+                    cell = row[y]
+                    if cell == ".":
                         is_a_good_placement = True
                         self.pawn_set.append({"x": x, "y": y})
                     else:
-                        console.print("x Position already token x", style="red")
+                        console.print("❌ Position already token ❌", style="red")
                         console.print()
                 except Exception as e:
                     console.print("Please check your inputs\n", style="red")
             else:
                 console.print("Please check your inputs\n", style="red")
 
+    def IA_play(self, map):
+
+        from rich import console
+        console = console.Console()
+
+        console.print("\n⚠️Functionality to develop ⚠️\n", style="red")

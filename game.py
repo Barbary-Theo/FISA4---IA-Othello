@@ -67,24 +67,30 @@ class Game:
         while not is_game_terminate:
             console.print(
                 Text(
-                    "\n-------------------------------------------------------------------------------- Player 1 "
-                    "---------------------------------------------------------------------\n"),
+                    "\n-------------------------------------------------------------------------------- " + self.p1.name
+                    + " have to play ---------------------------------------------------------------------\n"),
                 justify="center", style="green"
             )
 
             self.print()
 
-            self.p1.play(self.map)
+            if self.p1.type == "real":
+                self.p1.play(self.map)
+            else:
+                self.p1.IA_play(self.map)
             self.update_map()
 
             console.print(
                 Text(
-                    "\n-------------------------------------------------------------------------------- Player 2 "
-                    "---------------------------------------------------------------------\n"),
+                    "\n-------------------------------------------------------------------------------- " + self.p2.name
+                    + " have to play ---------------------------------------------------------------------\n"),
                 justify="center", style="cyan"
             )
 
             self.print()
 
-            self.p2.play(self.map)
+            if self.p2.type == "real":
+                self.p2.play(self.map)
+            else:
+                self.p2.IA_play(self.map)
             self.update_map()
