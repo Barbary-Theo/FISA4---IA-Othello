@@ -14,6 +14,6 @@ class Player:
 
         set = ""
         for object in self.pawn_set:
-            set += "\n    {x: \"0.0\", y: \"0.0\"}"
+            set += "\n    {x: \"" + str(object.get("x")) + "\", y: \"" + str(object.get("y")) + "\"}"
 
         console.print( "player { \n  name: \"" + self.name + "\",\n  couleur: \"" + self.couleur + "\"\n  pawn: [" + set + "\n  ]\n}")

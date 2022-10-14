@@ -13,7 +13,12 @@ class Game:
         for i in range(nb_row):
             row = []
             for j in range(nb_col):
-                row.append(".")
+                if self.p1.pawn_set.__contains__({"x": j, "y": i}):
+                    row.append("o")
+                elif self.p2.pawn_set.__contains__({"x": j, "y": i}):
+                    row.append("x")
+                else:
+                    row.append(".")
             map.append(row)
 
         return map
@@ -37,3 +42,8 @@ class Game:
                 string += str(col) + "  "
             row_number += 1
             console.print(string)
+
+    def print_all(self):
+        self.print()
+        self.p1.print()
+        self.p2.print()
