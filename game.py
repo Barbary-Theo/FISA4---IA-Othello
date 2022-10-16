@@ -59,7 +59,7 @@ class Game:
         for pawn in self.p2.pawn_set:
             self.map[pawn.get("x")][pawn.get("y")] = "x"
 
-    def is_pawn_embrassed(self, position: dict, symbol: str):
+    def is_pawn_circled(self, position: dict, symbol: str):
         return (
                 (self.map[position.get("x") - 1][position.get("y")] == symbol
                  and self.map[position.get("x") + 1][position.get("y")] == symbol)
@@ -74,7 +74,7 @@ class Game:
                  and self.map[position.get("x") + 1][position.get("y") - 1] == symbol)
         )
 
-    def is_a_pawn_have_to_swap_team(self, player_who_played, player_to_check_pawn):
+    def check_if_a_pawn_have_to_swap_team(self, player_who_played, player_to_check_pawn):
 
         player_who_played_start_copy = player_who_played
         player_to_check_pawn_start_copy = player_to_check_pawn
@@ -82,15 +82,15 @@ class Game:
         for position in player_to_check_pawn.pawn_set:
 
             try:
-                if self.is_pawn_embrassed(position, player_who_played.symbol):
+                if self.is_pawn_circled(position, player_who_played.symbol):
                     player_to_check_pawn.pawn_set.remove(position)
                     player_who_played.pawn_set.append(position)
             except Exception as e:
                 self.console.print(e + " -> ? index out of bounds ? ", style="red")
 
         if self.p1 == player_to_check_pawn_start_copy:
-            self.p1 = player_who_played
-            self.p2 = player_to_check_pawn
+            self.p1 = player_to_check_pawn
+            self.p2 = player_who_played
         else:
             self.p1 = player_who_played
             self.p2 = player_to_check_pawn
@@ -117,14 +117,13 @@ class Game:
             else:
                 self.p1.IA_play(self.map)
             self.update_map()
-            self.is_a_pawn_have_to_swap_team(self.p1, self.p2)
-            self.is_a_pawn_have_to_swap_team(self.p2, self.p1)
+            self.check_if_a_pawn_have_to_swap_team(self.p1, self.p2)
             self.update_map()
 
             self.console.print(
                 Text(
                     "\n-------------------------------------------------------------------------------- "
-                    + self.p2.name + " have to play (" + self.p1.symbol +
+                    + self.p2.name + " have to play (" + self.p2.symbol +
                     ") ---------------------------------------------------------------------\n"),
                 justify="center", style="cyan"
             )
@@ -136,7 +135,6 @@ class Game:
             else:
                 self.p2.IA_play(self.map)
             self.update_map()
-            self.is_a_pawn_have_to_swap_team(self.p1, self.p2)
-            self.is_a_pawn_have_to_swap_team(self.p2, self.p1)
+            self.check_if_a_pawn_have_to_swap_team(self.p2, self.p1)
             self.update_map()
 
