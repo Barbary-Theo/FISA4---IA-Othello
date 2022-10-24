@@ -59,34 +59,43 @@ class Game:
         for pawn in self.p2.pawn_set:
             self.map[pawn.get("x")][pawn.get("y")] = "x"
 
-    def is_pawn_circled(self, position: dict, symbol: str):
-        return (
-                (self.map[position.get("x") - 1][position.get("y")] == symbol
-                 and self.map[position.get("x") + 1][position.get("y")] == symbol)
-                or
-                (self.map[position.get("x")][position.get("y") - 1] == symbol
-                 and self.map[position.get("x")][position.get("y") + 1] == symbol)
-                or
-                (self.map[position.get("x") - 1][position.get("y") - 1] == symbol
-                 and self.map[position.get("x") + 1][position.get("y") + 1] == symbol)
-                or
-                (self.map[position.get("x") - 1][position.get("y") + 1] == symbol
-                 and self.map[position.get("x") + 1][position.get("y") - 1] == symbol)
-        )
+    def check_nb_to_still_to_left(self, position_played, player_to_check_pawn):
+        index_x = int(position_played.get("y")) - 1
+        index_y = int(position_played.get("x"))
+        counter_pawn_stolen = 0
 
-    def check_if_a_pawn_have_to_swap_team(self, player_who_played, player_to_check_pawn):
+        while index_x >= 0 and self.map[index_y][index_x] == player_to_check_pawn.symbol:
+            counter_pawn_stolen += 1
+            index_x -= 1
+
+        return counter_pawn_stolen
+
+    def check_nb_to_still_to_right(self, position_played, player_to_check_pawn):
+        index_x = int(position_played.get("y")) + 1
+        index_y = int(position_played.get("x"))
+        counter_pawn_stolen = 0
+
+        while index_x < len(self.map) and self.map[index_y][index_x] == player_to_check_pawn.symbol:
+            counter_pawn_stolen += 1
+            index_x += 1
+
+        return counter_pawn_stolen
+
+    #def check_nb_to_still_to_right(self, position_played, player_to_check_pawn):
+
+    #def check_nb_to_still_to_right(self, position_played, player_to_check_pawn):
+
+
+    def check_if_a_pawn_have_to_swap_team(self, player_who_played, player_to_check_pawn, position_played):
 
         player_who_played_start_copy = player_who_played
         player_to_check_pawn_start_copy = player_to_check_pawn
 
-        for position in player_to_check_pawn.pawn_set:
+        nb_to_left = self.check_nb_to_still_to_left(position_played, player_to_check_pawn)
+        nb_to_right = self.check_nb_to_still_to_right(position_played, player_to_check_pawn)
+        nb_to_top = self.check_nb_to_still_to_top(position_played, player_to_check_pawn)
+        nb_to_bottom = self.check_nb_to_still_to_bottom(position_played, player_to_check_pawn)
 
-            try:
-                if self.is_pawn_circled(position, player_who_played.symbol):
-                    player_to_check_pawn.pawn_set.remove(position)
-                    player_who_played.pawn_set.append(position)
-            except Exception as e:
-                self.console.print(e + " -> ? index out of bounds ? ", style="red")
 
         if self.p1 == player_to_check_pawn_start_copy:
             self.p1 = player_to_check_pawn
@@ -96,7 +105,6 @@ class Game:
             self.p2 = player_to_check_pawn
 
         return True
-
 
     def start_game(self):
 
@@ -112,12 +120,12 @@ class Game:
             self.print()
 
             if self.p1.type == "real":
-                self.p1.play(self.map)
+                position_played = self.p1.play(self.map)
             else:
-                self.p1.IA_play(self.map)
+                position_played = self.p1.IA_play(self.map)
             self.update_map()
-            # self.check_if_a_pawn_have_to_swap_team(self.p1, self.p2)
-            # self.update_map()
+            self.check_if_a_pawn_have_to_swap_team(self.p1, self.p2, position_played)
+            self.update_map()
 
             self.console.print(
                 Text(
@@ -130,12 +138,12 @@ class Game:
             self.print()
 
             if self.p2.type == "real":
-                self.p2.play(self.map)
+                position_played = self.p2.play(self.map)
             else:
-                self.p2.IA_play(self.map)
+                position_played = self.p2.IA_play(self.map)
             self.update_map()
-            # self.check_if_a_pawn_have_to_swap_team(self.p2, self.p1)
-            # self.update_map()
+            self.check_if_a_pawn_have_to_swap_team(self.p2, self.p1, position_played)
+            self.update_map()
 
     def is_game_terminate(self):
         return False

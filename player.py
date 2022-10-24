@@ -62,6 +62,7 @@ class Player:
                     if map[x][y] == ".":
                         is_a_good_placement = True
                         self.pawn_set.append({"x": x, "y": y})
+                        return {"x": x, "y": y}
                     else:
                         self.console.print("❌ Position already token ❌", style="red")
                         self.console.print()
@@ -75,3 +76,4 @@ class Player:
 
     def IA_play(self, map):
         self.console.print("\n⚠️Functionality to develop ⚠️\n", style="red")
+        return {"x": -1, "y": -1}
