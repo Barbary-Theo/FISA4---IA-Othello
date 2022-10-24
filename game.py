@@ -117,8 +117,8 @@ class Game:
             else:
                 self.p1.IA_play(self.map)
             self.update_map()
-            self.check_if_a_pawn_have_to_swap_team(self.p1, self.p2)
-            self.update_map()
+            #self.check_if_a_pawn_have_to_swap_team(self.p1, self.p2)
+            #self.update_map()
 
             self.console.print(
                 Text(
@@ -135,6 +135,6 @@ class Game:
             else:
                 self.p2.IA_play(self.map)
             self.update_map()
-            self.check_if_a_pawn_have_to_swap_team(self.p2, self.p1)
-            self.update_map()
+            #self.check_if_a_pawn_have_to_swap_team(self.p2, self.p1)
+            #self.update_map()
 

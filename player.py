@@ -26,6 +26,23 @@ class Player:
         self.console.print(
             "player { \n  name: \"" + self.name + "\",\n  couleur: \"" + self.couleur + "\"\n  pawn: [" + set + "\n  ]\n}")
 
+    def exist_enemy_pawn_arround(self, map: list, position: dict):
+
+        positions_arround = [(-1, -1), (0, -1), (1, -1),
+                             (-1, 0), (1, 0),
+                             (-1, 1), (0, 1), (1, 1)]
+
+        for position_arround in positions_arround:
+            try:
+                value = map[position.get("x") + position_arround[0]][position.get("y") + position_arround[1]]
+                if value != "." and value != self.symbol:
+                    return True
+            except Exception as e:
+                pass
+
+        return False
+
+
     def play(self, map):
 
         is_a_good_placement = False
@@ -47,12 +64,18 @@ class Player:
 
             if nice_input:
                 try:
-                    if map[x][y] == ".":
-                        is_a_good_placement = True
-                        self.pawn_set.append({"x": x, "y": y})
+
+                    if(self.exist_enemy_pawn_arround(map,  {"x": x, "y": y})):
+                        if map[x][y] == ".":
+                            is_a_good_placement = True
+                            self.pawn_set.append({"x": x, "y": y})
+                        else:
+                            self.console.print("❌ Position already token ❌", style="red")
+                            self.console.print()
                     else:
-                        self.console.print("❌ Position already token ❌", style="red")
+                        self.console.print("❌ No pawn arround this position ❌", style="red")
                         self.console.print()
+
                 except Exception as e:
                     self.console.print("Please check your inputs\n", style="red")
             else:

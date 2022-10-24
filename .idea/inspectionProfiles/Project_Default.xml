@@ -6,6 +6,7 @@
         <list>
           <option value="Map" />
           <option value="Exception.__add__" />
+          <option value="int.__getitem__" />
         </list>
       </option>
     </inspection_tool>
