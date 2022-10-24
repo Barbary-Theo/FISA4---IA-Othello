@@ -1,7 +1,7 @@
 from rich import console
 
-class Player:
 
+class Player:
     console = console.Console()
 
     def __init__(self, name: str = None,
@@ -42,7 +42,6 @@ class Player:
 
         return False
 
-
     def play(self, map):
 
         is_a_good_placement = False
@@ -58,27 +57,23 @@ class Player:
                 nice_input = True
 
             except Exception as e:
-                nice_input = False
-                x= 3
-                y = 3
+                self.console.print("Please check your inputs\n", style="red")
+                pass
 
-            if nice_input:
-                try:
+            try:
 
-                    if(self.exist_enemy_pawn_arround(map,  {"x": x, "y": y})):
-                        if map[x][y] == ".":
-                            is_a_good_placement = True
-                            self.pawn_set.append({"x": x, "y": y})
-                        else:
-                            self.console.print("❌ Position already token ❌", style="red")
-                            self.console.print()
+                if self.exist_enemy_pawn_arround(map, {"x": x, "y": y}):
+                    if map[x][y] == ".":
+                        is_a_good_placement = True
+                        self.pawn_set.append({"x": x, "y": y})
                     else:
-                        self.console.print("❌ No pawn arround this position ❌", style="red")
+                        self.console.print("❌ Position already token ❌", style="red")
                         self.console.print()
+                else:
+                    self.console.print("❌ No pawn arround this position ❌", style="red")
+                    self.console.print()
 
-                except Exception as e:
-                    self.console.print("Please check your inputs\n", style="red")
-            else:
+            except Exception as e:
                 self.console.print("Please check your inputs\n", style="red")
 
     def IA_play(self, map):
