@@ -49,20 +49,16 @@ class Player:
         while not is_a_good_placement:
 
             self.console.print("\nChoose a position to put your pawn", style="yellow")
+
             try:
                 self.console.print("-> Column number : ", style="yellow", end="")
                 y = int(input())
                 self.console.print("-> Row number : ", style="yellow", end="")
                 x = int(input())
-                nice_input = True
 
-            except Exception as e:
-                self.console.print("Please check your inputs\n", style="red")
-                pass
-
-            try:
-
-                if self.exist_enemy_pawn_arround(map, {"x": x, "y": y}):
+                if x < 0 or y < 0:
+                    self.console.print("Please check your inputs\n", style="red")
+                elif self.exist_enemy_pawn_arround(map, {"x": x, "y": y}):
                     if map[x][y] == ".":
                         is_a_good_placement = True
                         self.pawn_set.append({"x": x, "y": y})
@@ -75,6 +71,7 @@ class Player:
 
             except Exception as e:
                 self.console.print("Please check your inputs\n", style="red")
+
 
     def IA_play(self, map):
         self.console.print("\n⚠️Functionality to develop ⚠️\n", style="red")
