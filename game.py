@@ -59,148 +59,63 @@ class Game:
         for pawn in self.p2.pawn_set:
             self.map[pawn.get("y")][pawn.get("x")] = "x"
 
-    def check_nb_to_still_to_left(self, position_played, player_who_played, player_to_check):
-        index_x = int(position_played.get("x")) - 1
-        index_y = int(position_played.get("y"))
+
+    def can_we_check_next_case(self, direction_x, direction_y, index_x, index_y):
+
+        x_valid_to_check_next_case = True
+        y_valid_to_check_next_case = True
+
+        if direction_x < 0:
+            x_valid_to_check_next_case = index_x >= 0
+        if direction_y < 0:
+            y_valid_to_check_next_case = index_y >= 0
+        if direction_x > 0:
+            x_valid_to_check_next_case = index_x < len(self.map[0]) - 2
+        if direction_y > 0:
+            y_valid_to_check_next_case = index_y < len(self.map) - 2
+
+        return x_valid_to_check_next_case and y_valid_to_check_next_case
+
+    def check_pawn_to_still_by_value(self, position_played, player_who_played, player_to_check, direction_x, direction_y):
+        index_x = int(position_played.get("x")) + direction_x
+        index_y = int(position_played.get("y")) + direction_y
         position_to_swap = []
 
-        while index_x >= 0 and self.map[index_y][index_x] == player_to_check.symbol:
-            position_to_swap.append({"x": index_x, "y": index_y})
-            index_x -= 1
+        x_valid_to_check_next_case = True
+        y_valid_to_check_next_case = True
 
-        if self.map[index_y][index_x] == player_who_played.symbol:
-            for position in position_to_swap:
-                player_to_check.pawn_set.remove(position)
-                player_who_played.pawn_set.append(position)
+        we_can_check_next_case = self.can_we_check_next_case(direction_x, direction_y, index_x, index_y)
+
+        while we_can_check_next_case and self.map[index_y][index_x] == player_to_check.symbol:
+            position_to_swap.append({"x": index_x, "y": index_y})
+            index_x = index_x - 1 if direction_x < 0 else index_x
+            index_x = index_x + 1 if direction_x > 0 else index_x
+            index_y = index_y - 1 if direction_y < 0 else index_y
+            index_y = index_y + 1 if direction_y > 0 else index_y
+
+            we_can_check_next_case = self.can_we_check_next_case(direction_x, direction_y, index_x, index_y)
+
+        try:
+            if self.map[index_y][index_x] == player_who_played.symbol:
+                for position in position_to_swap:
+                    player_to_check.pawn_set.remove(position)
+                    player_who_played.pawn_set.append(position)
+        except Exception as e:
+            pass
 
         return player_who_played, player_to_check
 
-    def check_nb_to_still_to_right(self, position_played, player_who_played, player_to_check):
-        index_x = int(position_played.get("x")) + 1
-        index_y = int(position_played.get("y"))
-        position_to_swap = []
-
-        while index_x < len(self.map[0]) and self.map[index_y][index_x] == player_to_check.symbol:
-            position_to_swap.append({"x": index_x, "y": index_y})
-            index_x += 1
-
-        if self.map[index_y][index_x] == player_who_played.symbol:
-            for position in position_to_swap:
-                player_to_check.pawn_set.remove(position)
-                player_who_played.pawn_set.append(position)
-
-        return player_who_played, player_to_check
-
-    def check_nb_to_still_to_top(self, position_played, player_who_played, player_to_check):
-        index_x = int(position_played.get("x"))
-        index_y = int(position_played.get("y")) - 1
-        position_to_swap = []
-
-        while index_y >= 0 and self.map[index_y][index_x] == player_to_check.symbol:
-            position_to_swap.append({"x": index_x, "y": index_y})
-            index_y -= 1
-
-        if self.map[index_y][index_x] == player_who_played.symbol:
-            for position in position_to_swap:
-                player_to_check.pawn_set.remove(position)
-                player_who_played.pawn_set.append(position)
-
-        return player_who_played, player_to_check
-
-    def check_nb_to_still_to_bottom(self, position_played, player_who_played, player_to_check):
-        index_x = int(position_played.get("x"))
-        index_y = int(position_played.get("y")) + 1
-        position_to_swap = []
-
-        while index_y < len(self.map) and self.map[index_y][index_x] == player_to_check.symbol:
-            position_to_swap.append({"x": index_x, "y": index_y})
-            index_y += 1
-
-        if self.map[index_y][index_x] == player_who_played.symbol:
-            for position in position_to_swap:
-                player_to_check.pawn_set.remove(position)
-                player_who_played.pawn_set.append(position)
-
-        return player_who_played, player_to_check
-
-    def check_nb_to_still_to_top_left(self, position_played, player_who_played, player_to_check):
-        index_x = int(position_played.get("x")) - 1
-        index_y = int(position_played.get("y")) - 1
-        position_to_swap = []
-
-        while index_y >= 0 and index_x >= 0 and self.map[index_y][index_x] == player_to_check.symbol:
-            position_to_swap.append({"x": index_x, "y": index_y})
-            index_y -= 1
-            index_x -= 1
-
-        if self.map[index_y][index_x] == player_who_played.symbol:
-            for position in position_to_swap:
-                player_to_check.pawn_set.remove(position)
-                player_who_played.pawn_set.append(position)
-
-        return player_who_played, player_to_check
-
-    def check_nb_to_still_to_top_right(self, position_played, player_who_played, player_to_check):
-        index_x = int(position_played.get("x")) + 1
-        index_y = int(position_played.get("y")) - 1
-        position_to_swap = []
-
-        while index_y >= 0 and index_x < len(self.map[0]) and self.map[index_y][index_x] == player_to_check.symbol:
-            position_to_swap.append({"x": index_x, "y": index_y})
-            index_y -= 1
-            index_x += 1
-
-        if self.map[index_y][index_x] == player_who_played.symbol:
-            for position in position_to_swap:
-                player_to_check.pawn_set.remove(position)
-                player_who_played.pawn_set.append(position)
-
-        return player_who_played, player_to_check
-
-    def check_nb_to_still_to_bottom_left(self, position_played, player_who_played, player_to_check):
-        index_x = int(position_played.get("x")) - 1
-        index_y = int(position_played.get("y")) + 1
-        position_to_swap = []
-
-        while index_y < len(self.map) and index_x >= 0 and self.map[index_y][index_x] == player_to_check.symbol:
-            position_to_swap.append({"x": index_x, "y": index_y})
-            index_y += 1
-            index_x -= 1
-
-        if self.map[index_y][index_x] == player_who_played.symbol:
-            for position in position_to_swap:
-                player_to_check.pawn_set.remove(position)
-                player_who_played.pawn_set.append(position)
-
-        return player_who_played, player_to_check
-
-    def check_nb_to_still_to_bottom_right(self, position_played, player_who_played, player_to_check):
-        index_x = int(position_played.get("x")) + 1
-        index_y = int(position_played.get("y")) + 1
-        position_to_swap = []
-
-        while index_y < len(self.map) and index_x < len(self.map[0]) and self.map[index_y][index_x] == player_to_check.symbol:
-            position_to_swap.append({"x": index_x, "y": index_y})
-            index_y += 1
-            index_x += 1
-
-        if self.map[index_y][index_x] == player_who_played.symbol:
-            for position in position_to_swap:
-                player_to_check.pawn_set.remove(position)
-                player_who_played.pawn_set.append(position)
-
-        return player_who_played, player_to_check
 
     def swap_type_if_spawn_circled(self, player_who_played, player_to_check_pawn, position_played):
-        players = self.check_nb_to_still_to_left(position_played, player_who_played, player_to_check_pawn)
-        players = self.check_nb_to_still_to_right(position_played, players[0], players[1])
-        players = self.check_nb_to_still_to_top(position_played, players[0], players[1])
-        players = self.check_nb_to_still_to_bottom(position_played, players[0], players[1])
+        players = self.check_pawn_to_still_by_value(position_played, player_who_played, player_to_check_pawn, -1, 0)
+        players = self.check_pawn_to_still_by_value(position_played, players[0], players[1], 1, 0)
+        players = self.check_pawn_to_still_by_value(position_played, players[0], players[1], 0, -1)
+        players = self.check_pawn_to_still_by_value(position_played, players[0], players[1], 0, 1)
 
-        players = self.check_nb_to_still_to_top_left(position_played, players[0], players[1])
-        players = self.check_nb_to_still_to_top_right(position_played, players[0], players[1])
-        players = self.check_nb_to_still_to_bottom_left(position_played, players[0], players[1])
-        players = self.check_nb_to_still_to_bottom_right(position_played, players[0], players[1])
+        players = self.check_pawn_to_still_by_value(position_played, players[0], players[1], -1, -1)
+        players = self.check_pawn_to_still_by_value(position_played, players[0], players[1], 1, -1)
+        players = self.check_pawn_to_still_by_value(position_played, players[0], players[1], -1, 1)
+        players = self.check_pawn_to_still_by_value(position_played, players[0], players[1], 1, 1)
 
         return players
 
