@@ -34,7 +34,7 @@ class Player:
 
         for position_arround in positions_arround:
             try:
-                value = map[position.get("x") + position_arround[0]][position.get("y") + position_arround[1]]
+                value = map[position.get("y") + position_arround[1]][position.get("x") + position_arround[0]]
                 if value != "." and value != self.symbol:
                     return True
             except Exception as e:
@@ -52,14 +52,14 @@ class Player:
 
             try:
                 self.console.print("-> Column number : ", style="yellow", end="")
-                y = int(input())
-                self.console.print("-> Row number : ", style="yellow", end="")
                 x = int(input())
+                self.console.print("-> Row number : ", style="yellow", end="")
+                y = int(input())
 
                 if x < 0 or y < 0:
                     self.console.print("Please check your inputs\n", style="red")
                 elif self.exist_enemy_pawn_arround(map, {"x": x, "y": y}):
-                    if map[x][y] == ".":
+                    if map[y][x] == ".":
                         is_a_good_placement = True
                         self.pawn_set.append({"x": x, "y": y})
                         return {"x": x, "y": y}
