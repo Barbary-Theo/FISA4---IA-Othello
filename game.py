@@ -16,7 +16,7 @@ class Game:
         self.map = self.init_map(nb_row, nb_col)
 
     def init_map(self, nb_row, nb_col):
-        map = []
+        map_creation = []
         for i in range(nb_row):
             row = []
             for j in range(nb_col):
@@ -26,9 +26,9 @@ class Game:
                     row.append("x")
                 else:
                     row.append(".")
-            map.append(row)
+            map_creation.append(row)
 
-        return map
+        return map_creation
 
     def print(self):
 
@@ -81,9 +81,6 @@ class Game:
         index_y = int(position_played.get("y")) + direction_y
         position_to_swap = []
 
-        x_valid_to_check_next_case = True
-        y_valid_to_check_next_case = True
-
         we_can_check_next_case = self.can_we_check_next_case(direction_x, direction_y, index_x, index_y)
 
         while we_can_check_next_case and self.map[index_y][index_x] == player_to_check.symbol:
@@ -100,7 +97,7 @@ class Game:
                 for position in position_to_swap:
                     player_to_check.pawn_set.remove(position)
                     player_who_played.pawn_set.append(position)
-        except Exception as e:
+        except Exception:
             pass
 
         return player_who_played, player_to_check
@@ -121,7 +118,6 @@ class Game:
 
     def check_if_a_pawn_have_to_swap_team(self, player_who_played, player_to_check_pawn, position_played):
 
-        player_who_played_start_copy = player_who_played
         player_to_check_pawn_start_copy = player_to_check_pawn
 
         player_who_played, player_to_check_pawn = self.swap_type_if_spawn_circled(player_who_played, player_to_check_pawn, position_played)
@@ -151,7 +147,7 @@ class Game:
             if self.p1.type == "real":
                 position_played = self.p1.play(self.map)
             else:
-                position_played = self.p1.IA_play(self.map)
+                position_played = self.p1.ia_play(self.map)
             self.update_map()
             self.check_if_a_pawn_have_to_swap_team(self.p1, self.p2, position_played)
             self.update_map()
@@ -169,7 +165,7 @@ class Game:
             if self.p2.type == "real":
                 position_played = self.p2.play(self.map)
             else:
-                position_played = self.p2.IA_play(self.map)
+                position_played = self.p2.ia_play(self.map)
             self.update_map()
             self.check_if_a_pawn_have_to_swap_team(self.p2, self.p1, position_played)
             self.update_map()

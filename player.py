@@ -19,12 +19,12 @@ class Player:
         self.symbol = symbol
 
     def print(self):
-        set = ""
+        set_creation = ""
         for object in self.pawn_set:
-            set += "\n    {x: \"" + str(object.get("x")) + "\", y: \"" + str(object.get("y")) + "\"}"
+            set_creation += "\n    {x: \"" + str(object.get("x")) + "\", y: \"" + str(object.get("y")) + "\"}"
 
         self.console.print(
-            "player { \n  name: \"" + self.name + "\",\n  couleur: \"" + self.couleur + "\"\n  pawn: [" + set + "\n  ]\n}")
+            "player { \n  name: \"" + self.name + "\",\n  couleur: \"" + self.couleur + "\"\n  pawn: [" + set_creation + "\n  ]\n}")
 
     def exist_enemy_pawn_arround(self, map: list, position: dict):
 
@@ -37,7 +37,7 @@ class Player:
                 value = map[position.get("y") + position_arround[1]][position.get("x") + position_arround[0]]
                 if value != "." and value != self.symbol:
                     return True
-            except Exception as e:
+            except Exception:
                 pass
 
         return False
@@ -70,10 +70,16 @@ class Player:
                     self.console.print("❌ No pawn arround this position ❌", style="red")
                     self.console.print()
 
-            except Exception as e:
+            except Exception:
                 self.console.print("Please check your inputs\n", style="red")
 
+    def ia_play(self, map):
 
-    def IA_play(self, map):
-        self.console.print("\n⚠️Functionality to develop ⚠️\n", style="red")
+        """
+        TODO
+            -> implement IA method to play
+        """
+
+        map.print()
+
         return {"x": -1, "y": -1}
