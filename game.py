@@ -6,14 +6,14 @@ from rich import console
 class Game:
     console = console.Console()
 
-    def __init__(self, p1: Player = None,
-                 p2: Player = None,
-                 nb_row=8,
-                 nb_col=8):
+    def __init__(self, p1: Player = None, p2: Player = None,
+                 nb_row=8, nb_col=8,
+                 depth=2):
 
         self.p1 = p1
         self.p2 = p2
         self.map = self.init_map(nb_row, nb_col)
+        self.depth = depth
 
     def init_map(self, nb_row, nb_col):
         map_creation = []
@@ -146,7 +146,7 @@ class Game:
             if self.p1.type == "real":
                 position_played = self.p1.play(self.map)
             else:
-                position_played = self.p1.ia_play(self.map)
+                position_played = self.p1.ia_play(self.map, self.p2, self.depth)
             self.update_map()
             self.check_if_a_pawn_have_to_swap_team(self.p1, self.p2, position_played)
             self.update_map()
@@ -164,7 +164,7 @@ class Game:
             if self.p2.type == "real":
                 position_played = self.p2.play(self.map)
             else:
-                position_played = self.p2.ia_play(self.map)
+                position_played = self.p2.ia_play(self.map, self.p1, self.depth)
             self.update_map()
             self.check_if_a_pawn_have_to_swap_team(self.p2, self.p1, position_played)
             self.update_map()

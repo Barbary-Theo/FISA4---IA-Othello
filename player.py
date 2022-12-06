@@ -1,5 +1,8 @@
 from rich import console
 
+import game
+import player
+
 
 class Player:
     console = console.Console()
@@ -73,13 +76,51 @@ class Player:
             except Exception:
                 self.console.print("Please check your inputs\n", style="red")
 
-    def ia_play(self, map):
+
+    def is_a_possible_play(self, map, x, y, index_x, index_y, possible_plays):
+        return map[y - index_y][x - index_x] == "." and {"y": y - index_y, "x": x - index_x} not in possible_plays
+
+
+    def get_posible_position(self, map, enemy_player):
+
+        possible_plays = []
+
+        for enemy_position in enemy_player.pawn_set:
+
+            y = enemy_position["y"]
+            x = enemy_position["x"]
+
+            index_x = [-1, 0, 1]
+            index_y = [-1, 0, 1]
+
+            for x_val in index_x:
+                for y_val in index_y:
+
+                    try:
+                        if self.is_a_possible_play(map, x, y, x_val, y_val, possible_plays):
+                            possible_plays.append({"y": y - y_val, "x": x - x_val})
+                    except Exception:
+                        pass
+
+        return possible_plays
+
+
+    def get_best_play(self,map, enemy_player, depth_still_to_do):
+
+        possible_plays = self.get_posible_position(map, enemy_player)
+        print(possible_plays)
+
+        return {"x": -1, "y": -1} if depth_still_to_do == 0 else self.get_best_play(map, enemy_player, depth_still_to_do - 1)
+
+    def ia_play(self, map, enemy_player, total_depth = 2):
 
         """
         TODO
             -> implement IA method to play
         """
 
-        map.print()
+        return self.get_best_play(map, enemy_player, total_depth - 1)
 
-        return {"x": -1, "y": -1}
+
+
+
