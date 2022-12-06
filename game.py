@@ -59,7 +59,6 @@ class Game:
         for pawn in self.p2.pawn_set:
             self.map[pawn.get("y")][pawn.get("x")] = "x"
 
-
     def can_we_check_next_case(self, direction_x, direction_y, index_x, index_y):
 
         x_valid_to_check_next_case = True
