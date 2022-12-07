@@ -132,7 +132,9 @@ class Game:
 
     def start_game(self):
 
-        while not self.is_game_terminate():
+        position_error = {"x": -1, "y": -1}
+
+        while True:
             self.console.print(
                 Text(
                     "\n-------------------------------------------------------------------------------- "
@@ -144,9 +146,13 @@ class Game:
             self.print()
 
             if self.p1.type == "real":
-                position_played = self.p1.play(self.map)
+                position_played = self.p1.play(self.map, self.p2)
             else:
                 position_played = self.p1.ia_play(self.map, self.p2, self.depth)
+
+            if position_played == position_error:
+                break
+
             self.update_map()
             self.check_if_a_pawn_have_to_swap_team(self.p1, self.p2, position_played)
             self.update_map()
@@ -162,12 +168,15 @@ class Game:
             self.print()
 
             if self.p2.type == "real":
-                position_played = self.p2.play(self.map)
+                position_played = self.p2.play(self.map, self.p1)
             else:
                 position_played = self.p2.ia_play(self.map, self.p1, self.depth)
+
+            if position_played == position_error:
+                break
+
             self.update_map()
             self.check_if_a_pawn_have_to_swap_team(self.p2, self.p1, position_played)
             self.update_map()
 
-    def is_game_terminate(self):
-        return False
+        self.console.print("Fin de partie", style="red")

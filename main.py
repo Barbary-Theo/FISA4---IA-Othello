@@ -8,11 +8,11 @@ def prog():
     p1 = Player("Théo", "white", [
         {"x": 3, "y": 3},
         {"x": 4, "y": 4},
-    ], Player.REAL, "o")
+    ], Player.REAL, Player.WHITE)
     p2 = Player("Martin", "Black", [
         {"x": 3, "y": 4},
         {"x": 4, "y": 3},
-    ], Player.REAL, "x")
+    ], Player.REAL, Player.BLACK)
 
     game = Game(p1, p2, 8, 8, 3)
     game.start_game()

@@ -1,3 +1,5 @@
+import json
+
 from rich import console
 
 import game
@@ -8,12 +10,14 @@ class Player:
     console = console.Console()
     REAL = "real"
     AI = "ai"
+    WHITE = "o"
+    BLACK = "x"
 
     def __init__(self, name: str = None,
                  couleur: str = "white",
                  pawn_set: list = None,
                  type: str = "real",
-                 symbol: str = "o"):
+                 symbol: str = WHITE):
 
         if pawn_set is None:
             pawn_set = []
@@ -23,6 +27,14 @@ class Player:
         self.type = type
         self.symbol = symbol
 
+
+    def __copy__(self):
+        return Player(self.name,
+                      self.couleur,
+                      self.pawn_set.copy(),
+                      self.type,
+                      self.symbol)
+
     def print(self):
         set_creation = ""
         for object in self.pawn_set:
@@ -31,7 +43,7 @@ class Player:
         self.console.print(
             "player { \n  name: \"" + self.name + "\",\n  couleur: \"" + self.couleur + "\"\n  pawn: [" + set_creation + "\n  ]\n}")
 
-    def is_a_right_position(self, map: list, position: dict):
+    def is_a_right_position(self, map: list, position: dict, current_player):
 
         positions_arround = [(-1, -1), (0, -1), (1, -1),
                              (-1, 0), (1, 0),
@@ -40,33 +52,54 @@ class Player:
         for position_arround in positions_arround:
             try:
                 value = map[position.get("y") + position_arround[1]][position.get("x") + position_arround[0]]
-                previous_value = map[position.get("y") + 2 * position_arround[1]][position.get("x") + 2 * position_arround[0]]
-                if value != "." and value != self.symbol and previous_value == self.symbol:
-                    return True
+                if value != "." and value != current_player.symbol:
+                    coef = 1
+                    is_a_point = False
+                    while not is_a_point:
+                        try:
+                            if coef > 10:
+                                break
+
+                            previous_value = map[position.get("y") + coef * position_arround[1]][position.get("x") + coef * position_arround[0]]
+                            if previous_value == current_player.symbol:
+                                return True
+                            elif previous_value == ".":
+                                is_a_point = True
+
+                            coef += 1
+                        except Exception:
+                            is_a_point = True
+
             except Exception:
                 pass
 
         return False
 
 
-    def do_the_play(self, x, y, map):
+    def do_the_play(self, x, y, map, current_player):
         if x < 0 or y < 0:
             self.console.print("Please check your inputs\n", style="red")
-        elif self.is_a_right_position(map, {"x": x, "y": y}):
+        elif current_player.is_a_right_position(map, {"x": x, "y": y}, current_player):
+
             if map[y][x] == ".":
-                self.pawn_set.append({"x": x, "y": y})
+                current_player.pawn_set.append({"x": x, "y": y})
                 return {"x": x, "y": y}
-            elif self.type == Player.REAL:
+            elif current_player.type == Player.REAL:
                 self.console.print("❌ Position already token ❌", style="red")
                 self.console.print()
-        elif self.type == Player.REAL:
+
+        elif current_player.type == Player.REAL:
             self.console.print("❌ No pawn arround this position ❌", style="red")
             self.console.print()
 
         return None
 
 
-    def play(self, map):
+    def play(self, map, enemy_player):
+
+        possible_play = self.get_possible_position(map, self, enemy_player)
+        if len(possible_play) == 0:
+            return {"x": -1, "y": -1}
 
         is_a_good_placement = False
 
@@ -80,7 +113,7 @@ class Player:
                 self.console.print("-> Row number : ", style="yellow", end="")
                 y = int(input())
 
-                play = self.do_the_play(x, y, map)
+                play = self.do_the_play(x, y, map, self)
 
                 if play is not None:
                     return play
@@ -89,11 +122,7 @@ class Player:
                 self.console.print("Please check your inputs\n", style="red")
 
 
-    def is_a_possible_play(self, map, x, y, index_x, index_y, possible_plays):
-        return map[y - index_y][x - index_x] == "." and {"y": y - index_y, "x": x - index_x} not in possible_plays
-
-
-    def get_possible_position(self, map, enemy_player):
+    def get_possible_position(self, map, current_player, enemy_player):
 
         possible_plays = []
 
@@ -109,33 +138,47 @@ class Player:
                 for y_val in index_y:
 
                     try:
-                        if self.is_a_possible_play(map, x, y, x_val, y_val, possible_plays):
-                            possible_plays.append({"y": y - y_val, "x": x - x_val})
+                        position_to_check = {"x": x - x_val, "y": y - y_val}
+                        if current_player.is_a_right_position(map, position_to_check, current_player) \
+                                and position_to_check not in possible_plays \
+                                and map[position_to_check["y"]][position_to_check["x"]] == ".":
+                            possible_plays.append(position_to_check)
                     except Exception:
                         pass
 
         return possible_plays
 
 
-    def get_best_play(self,map, enemy_player, depth_still_to_do, moves):
+    def get_best_play(self, map, current_player, enemy_player, depth_still_to_do):
 
+        print("depth : ", depth_still_to_do)
         if depth_still_to_do == 0:
-            return moves
+            return []
 
-        print("depth ", depth_still_to_do)
+        possible_plays = self.get_possible_position(map, current_player, enemy_player)
+        possible_plays_result = possible_plays.copy()
 
-        possible_plays = self.get_possible_position(map, enemy_player)
-        possible_plays_result = possible_plays
+        depth_still_to_do -= 1
 
         for play_index in range(len(possible_plays)):
+
+            current_player_copy = current_player.__copy__()
+            enemy_player_copy = enemy_player.__copy__()
+
             play = possible_plays[play_index]
             print(play)
-            moves.append(play)
-            game_simulate = game.Game(self, enemy_player, 8, 8, depth_still_to_do)
-            self.do_the_play(play["x"], play["y"], map)
-            possible_plays_result[play_index]["move"] = self.get_best_play(game_simulate.map, enemy_player, depth_still_to_do - 1, moves)
+
+            game_simulate = game.Game(current_player_copy, enemy_player_copy, 8, 8, depth_still_to_do)
+            game_simulate.p1.do_the_play(play["x"], play["y"], game_simulate.map, game_simulate.p1)
+            game_simulate.update_map()
+            game_simulate.check_if_a_pawn_have_to_swap_team(game_simulate.p1, game_simulate.p2, {"x": play["x"], "y": play["y"]})
+            game_simulate.update_map()
+
+            possible_plays_result[play_index]["move"] = current_player_copy.get_best_play(game_simulate.map, game_simulate.p2,
+                                                                           game_simulate.p1, depth_still_to_do)
 
         return possible_plays_result
+
 
     def ia_play(self, map, enemy_player, total_depth=2):
 
@@ -144,7 +187,7 @@ class Player:
             -> implement IA method to play
         """
 
-        moves = self.get_best_play(map, enemy_player, total_depth - 1, [])
+        moves = self.get_best_play(map, self, enemy_player, total_depth - 1)
         print(moves)
 
         return {"x": -1, "y": -1}
