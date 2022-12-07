@@ -161,18 +161,21 @@ class Player:
 
         for play_index in range(len(possible_plays)):
 
-            p1, p2 = (current_player.__copy__(), enemy_player.__copy__()) if current_player.symbol == Player.WHITE else (enemy_player.__copy__(), current_player.__copy__())
+            current_player_copy = current_player.__copy__()
+            enemy_player_copy = enemy_player.__copy__()
+
+            p1, p2 = (current_player_copy, enemy_player_copy) if current_player.symbol == Player.WHITE else (enemy_player_copy, current_player_copy)
 
             play = possible_plays[play_index]
 
             game_simulate = game.Game(p1, p2, 8, 8, depth_still_to_do)
-            p1.do_the_play(play["x"], play["y"], game_simulate.map, p2)
+            current_player_copy.do_the_play(play["x"], play["y"], game_simulate.map, p2)
             game_simulate.update_map()
-            game_simulate.check_if_a_pawn_have_to_swap_team(p2, p1, {"x": play["x"], "y": play["y"]})
+            game_simulate.check_if_a_pawn_have_to_swap_team(current_player_copy, enemy_player_copy, {"x": play["x"], "y": play["y"]})
             game_simulate.update_map()
 
-            possible_plays_result[play_index]["move"] = p1.get_best_play(game_simulate.map, p1,
-                                                                           p2, depth_still_to_do)
+            possible_plays_result[play_index]["move"] = current_player_copy.get_best_play(game_simulate.map, enemy_player_copy,
+                                                                           current_player_copy, depth_still_to_do)
 
         return possible_plays_result
 
