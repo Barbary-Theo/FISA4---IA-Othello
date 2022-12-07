@@ -6,6 +6,8 @@ import player
 
 class Player:
     console = console.Console()
+    REAL = "real"
+    AI = "ai"
 
     def __init__(self, name: str = None,
                  couleur: str = "white",
@@ -45,6 +47,24 @@ class Player:
 
         return False
 
+
+    def do_the_play(self, x, y, map):
+        if x < 0 or y < 0:
+            self.console.print("Please check your inputs\n", style="red")
+        elif self.exist_enemy_pawn_arround(map, {"x": x, "y": y}):
+            if map[y][x] == ".":
+                self.pawn_set.append({"x": x, "y": y})
+                return {"x": x, "y": y}
+            else:
+                self.console.print("❌ Position already token ❌", style="red")
+                self.console.print()
+        elif self.type == Player.REAL:
+            self.console.print("❌ No pawn arround this position ❌", style="red")
+            self.console.print()
+
+        return None
+
+
     def play(self, map):
 
         is_a_good_placement = False
@@ -59,19 +79,10 @@ class Player:
                 self.console.print("-> Row number : ", style="yellow", end="")
                 y = int(input())
 
-                if x < 0 or y < 0:
-                    self.console.print("Please check your inputs\n", style="red")
-                elif self.exist_enemy_pawn_arround(map, {"x": x, "y": y}):
-                    if map[y][x] == ".":
-                        is_a_good_placement = True
-                        self.pawn_set.append({"x": x, "y": y})
-                        return {"x": x, "y": y}
-                    else:
-                        self.console.print("❌ Position already token ❌", style="red")
-                        self.console.print()
-                else:
-                    self.console.print("❌ No pawn arround this position ❌", style="red")
-                    self.console.print()
+                play = self.do_the_play(x, y, map)
+
+                if play is not None:
+                    return play
 
             except Exception:
                 self.console.print("Please check your inputs\n", style="red")
@@ -105,21 +116,37 @@ class Player:
         return possible_plays
 
 
-    def get_best_play(self,map, enemy_player, depth_still_to_do):
+    def get_best_play(self,map, enemy_player, depth_still_to_do, moves):
+
+        if depth_still_to_do == 0:
+            return moves
+
+        print("depth ", depth_still_to_do)
 
         possible_plays = self.get_posible_position(map, enemy_player)
-        print(possible_plays)
+        possible_plays_result = possible_plays
 
-        return {"x": -1, "y": -1} if depth_still_to_do == 0 else self.get_best_play(map, enemy_player, depth_still_to_do - 1)
+        for play_index in range(len(possible_plays)):
+            play = possible_plays[play_index]
+            print(play)
+            moves.append(play)
+            game_simulate = game.Game(self, enemy_player, 8, 8, depth_still_to_do)
+            self.do_the_play(play["x"], play["y"], map)
+            possible_plays_result[play_index]["move"] = self.get_best_play(game_simulate.map, enemy_player, depth_still_to_do - 1, moves)
 
-    def ia_play(self, map, enemy_player, total_depth = 2):
+        return possible_plays_result
+
+    def ia_play(self, map, enemy_player, total_depth=2):
 
         """
         TODO
             -> implement IA method to play
         """
 
-        return self.get_best_play(map, enemy_player, total_depth - 1)
+        moves = self.get_best_play(map, enemy_player, total_depth - 1, [])
+        print(moves)
+
+        return {"x": -1, "y": -1}
 
 
 
