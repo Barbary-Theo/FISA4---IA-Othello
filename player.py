@@ -31,7 +31,7 @@ class Player:
         self.console.print(
             "player { \n  name: \"" + self.name + "\",\n  couleur: \"" + self.couleur + "\"\n  pawn: [" + set_creation + "\n  ]\n}")
 
-    def exist_enemy_pawn_arround(self, map: list, position: dict):
+    def is_a_right_position(self, map: list, position: dict):
 
         positions_arround = [(-1, -1), (0, -1), (1, -1),
                              (-1, 0), (1, 0),
@@ -40,7 +40,8 @@ class Player:
         for position_arround in positions_arround:
             try:
                 value = map[position.get("y") + position_arround[1]][position.get("x") + position_arround[0]]
-                if value != "." and value != self.symbol:
+                previous_value = map[position.get("y") + 2 * position_arround[1]][position.get("x") + 2 * position_arround[0]]
+                if value != "." and value != self.symbol and previous_value == self.symbol:
                     return True
             except Exception:
                 pass
@@ -51,11 +52,11 @@ class Player:
     def do_the_play(self, x, y, map):
         if x < 0 or y < 0:
             self.console.print("Please check your inputs\n", style="red")
-        elif self.exist_enemy_pawn_arround(map, {"x": x, "y": y}):
+        elif self.is_a_right_position(map, {"x": x, "y": y}):
             if map[y][x] == ".":
                 self.pawn_set.append({"x": x, "y": y})
                 return {"x": x, "y": y}
-            else:
+            elif self.type == Player.REAL:
                 self.console.print("❌ Position already token ❌", style="red")
                 self.console.print()
         elif self.type == Player.REAL:
@@ -92,7 +93,7 @@ class Player:
         return map[y - index_y][x - index_x] == "." and {"y": y - index_y, "x": x - index_x} not in possible_plays
 
 
-    def get_posible_position(self, map, enemy_player):
+    def get_possible_position(self, map, enemy_player):
 
         possible_plays = []
 
@@ -123,7 +124,7 @@ class Player:
 
         print("depth ", depth_still_to_do)
 
-        possible_plays = self.get_posible_position(map, enemy_player)
+        possible_plays = self.get_possible_position(map, enemy_player)
         possible_plays_result = possible_plays
 
         for play_index in range(len(possible_plays)):

@@ -12,7 +12,7 @@ def prog():
     p2 = Player("Martin", "Black", [
         {"x": 3, "y": 4},
         {"x": 4, "y": 3},
-    ], Player.AI, "x")
+    ], Player.REAL, "x")
 
     game = Game(p1, p2, 8, 8, 3)
     game.start_game()
