@@ -52,7 +52,8 @@ class Player:
         for position_arround in positions_arround:
             try:
                 value = map[position.get("y") + position_arround[1]][position.get("x") + position_arround[0]]
-                if value != "." and value != current_player.symbol:
+                is_in_game_position = 0 <= position["x"] < 8 and 0 <= position["y"] < 8
+                if value != "." and value != current_player.symbol and is_in_game_position:
                     coef = 1
                     is_a_point = False
                     while not is_a_point:
@@ -77,7 +78,7 @@ class Player:
 
 
     def do_the_play(self, x, y, map, current_player):
-        if x < 0 or y < 0:
+        if (x < 0 or y < 0) and current_player.type == Player.REAL:
             self.console.print("Please check your inputs\n", style="red")
         elif current_player.is_a_right_position(map, {"x": x, "y": y}, current_player):
 
@@ -157,6 +158,9 @@ class Player:
         possible_plays = self.get_possible_position(map, current_player, enemy_player)
         possible_plays_result = possible_plays.copy()
 
+        if len(possible_plays) == 0:
+            return []
+
         depth_still_to_do -= 1
 
         for play_index in range(len(possible_plays)):
@@ -188,10 +192,11 @@ class Player:
         """
 
         moves = self.get_best_play(map, self, enemy_player, total_depth - 1)
-        with open("moves.txt", "w") as f:
-            f.write(moves.__str__().replace("'", "\""))
 
-        return {"x": -1, "y": -1}
+        move_to_do = moves[0] if len(moves) > 0 else {"x": -1, "y": -1}
+        self.do_the_play(move_to_do["x"], move_to_do["y"], map, self)
+
+        return move_to_do
 
 
 
