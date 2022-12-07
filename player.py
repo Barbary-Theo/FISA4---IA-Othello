@@ -151,7 +151,6 @@ class Player:
 
     def get_best_play(self, map, current_player, enemy_player, depth_still_to_do):
 
-        print("depth : ", depth_still_to_do)
         if depth_still_to_do == 0:
             return []
 
@@ -162,20 +161,18 @@ class Player:
 
         for play_index in range(len(possible_plays)):
 
-            current_player_copy = current_player.__copy__()
-            enemy_player_copy = enemy_player.__copy__()
+            p1, p2 = (current_player.__copy__(), enemy_player.__copy__()) if current_player.symbol == Player.WHITE else (enemy_player.__copy__(), current_player.__copy__())
 
             play = possible_plays[play_index]
-            print(play)
 
-            game_simulate = game.Game(current_player_copy, enemy_player_copy, 8, 8, depth_still_to_do)
-            game_simulate.p1.do_the_play(play["x"], play["y"], game_simulate.map, game_simulate.p1)
+            game_simulate = game.Game(p1, p2, 8, 8, depth_still_to_do)
+            p1.do_the_play(play["x"], play["y"], game_simulate.map, p2)
             game_simulate.update_map()
-            game_simulate.check_if_a_pawn_have_to_swap_team(game_simulate.p1, game_simulate.p2, {"x": play["x"], "y": play["y"]})
+            game_simulate.check_if_a_pawn_have_to_swap_team(p2, p1, {"x": play["x"], "y": play["y"]})
             game_simulate.update_map()
 
-            possible_plays_result[play_index]["move"] = current_player_copy.get_best_play(game_simulate.map, game_simulate.p2,
-                                                                           game_simulate.p1, depth_still_to_do)
+            possible_plays_result[play_index]["move"] = p1.get_best_play(game_simulate.map, p1,
+                                                                           p2, depth_still_to_do)
 
         return possible_plays_result
 
@@ -188,7 +185,8 @@ class Player:
         """
 
         moves = self.get_best_play(map, self, enemy_player, total_depth - 1)
-        print(moves)
+        with open("moves.txt", "w") as f:
+            f.write(moves.__str__().replace("'", "\""))
 
         return {"x": -1, "y": -1}
 
