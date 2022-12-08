@@ -189,7 +189,7 @@ class Player:
             game_simulate.update_map()
 
             possible_plays_result[play_index]["case_static_value"] = config.STATIC_VALUES_OTHELLO[play.get("x")][play.get("y")]
-            possible_plays_result[play_index]["current_player"] = "current" if depth_still_to_do % 2 == 0 else "enemy"
+            possible_plays_result[play_index]["current_player"] = "current" if (total_depth - (depth_still_to_do + 1)) % 2 == 0 else "enemy"
             possible_plays_result[play_index]["move"] = current_player_copy.get_best_play(game_simulate.map, enemy_player_copy,
                                                                            current_player_copy, depth_still_to_do, total_depth)
 
@@ -215,7 +215,7 @@ class Player:
     def select_a_move(self, moves: list):
 
         if self.ai_type == Player.POSITIONAL:
-            return self.move_positional(moves, 0, 0)
+            return self.move_positional(moves)
         if self.ai_type == Player.MOBILITY:
             return self.move_mobility(moves)
         if self.ai_type == Player.MIXT:
@@ -226,8 +226,57 @@ class Player:
         return moves[0]
 
 
-    def move_positional(self, moves: list, total_pods_current_player, total_pods_enemy_player):
-        return moves[0]
+    def move_positional(self, moves: list):
+
+        total_pods_for_each_init_move = self.get_pods_for_move(moves, 0)
+        pods_selected = None
+        index_move_to_play = None
+
+        if len(total_pods_for_each_init_move) > 0:
+            pods_selected = total_pods_for_each_init_move[0]
+            index_move_to_play = 0
+
+        for index_pods in range(1, len(total_pods_for_each_init_move)):
+
+            current_pods = total_pods_for_each_init_move[index_pods]
+
+            if pods_selected[0] - pods_selected[1] < current_pods[0] - current_pods[1]:
+                index_move_to_play = index_pods
+                pods_selected = current_pods
+
+        return moves[index_move_to_play]
+
+
+    def get_pods_for_move(self, moves: list, current_depth):
+
+        pods_for_initial_plays = []
+
+        total_pods_current_player = 0
+        total_pods_enemy_player = 0
+
+        for move in moves:
+
+            list_total_pods = self.get_pods_for_move(move["move"], current_depth + 1)
+
+            total_pods_current_player = list_total_pods[0]
+            total_pods_enemy_player = list_total_pods[1]
+
+            if move["current_player"] == "current":
+                total_pods_current_player += move["case_static_value"]
+            else:
+                total_pods_enemy_player += move["case_static_value"]
+
+            if current_depth == 0:
+                pods_for_initial_plays.append((total_pods_current_player, total_pods_enemy_player))
+                total_pods_current_player = 0
+                total_pods_enemy_player = 0
+
+
+
+        if current_depth == 0:
+            return pods_for_initial_plays
+
+        return total_pods_current_player, total_pods_enemy_player
 
 
     def move_mobility(self, moves: list):
