@@ -213,8 +213,6 @@ class Player:
     def ia_play(self, map, enemy_player, total_depth=1):
 
         moves = self.get_best_play(map, self, enemy_player, total_depth, total_depth)
-        #self.write_moves(moves)
-
         move_to_do = self.min_max(moves, map, 0) if len(moves) > 0 else {"x": -1, "y": -1}
         self.do_the_play(move_to_do["x"], move_to_do["y"], map, self)
 
@@ -304,6 +302,7 @@ class Player:
                 or (move["x"] == 7 and move["y"] == 0) or (move["x"] == 7 and move["y"] == 7):
             diff_nb_moves_generated += 8
         return diff_nb_moves_generated
+
 
     def write_moves(self, moves):
         with open("moves.txt", "w") as f:
