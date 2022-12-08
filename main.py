@@ -14,7 +14,7 @@ def prog():
         {"x": 4, "y": 3},
     ], Player.AI, Player.BLACK, Player.POSITIONAL)
 
-    game = Game(p1, p2, 8, 8, 1)
+    game = Game(p1, p2, 8, 8, 4)
     game.start_game()
 
 
