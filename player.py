@@ -199,7 +199,7 @@ class Player:
     def ia_play(self, map, enemy_player, total_depth=1):
 
         moves = self.get_best_play(map, self, enemy_player, total_depth, total_depth)
-        #self.write_moves(moves)
+        self.write_moves(moves)
 
         """
             TODO
