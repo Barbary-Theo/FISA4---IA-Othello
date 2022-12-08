@@ -103,21 +103,23 @@ class Game:
 
 
     def swap_type_if_spawn_circled(self, player_who_played, player_to_check_pawn, position_played):
-        players = self.check_pawn_to_still_by_value(position_played, player_who_played, player_to_check_pawn, -1, 0)
-        players = self.check_pawn_to_still_by_value(position_played, players[0], players[1], 1, 0)
-        players = self.check_pawn_to_still_by_value(position_played, players[0], players[1], 0, -1)
-        players = self.check_pawn_to_still_by_value(position_played, players[0], players[1], 0, 1)
 
-        players = self.check_pawn_to_still_by_value(position_played, players[0], players[1], -1, -1)
-        players = self.check_pawn_to_still_by_value(position_played, players[0], players[1], 1, -1)
-        players = self.check_pawn_to_still_by_value(position_played, players[0], players[1], -1, 1)
-        players = self.check_pawn_to_still_by_value(position_played, players[0], players[1], 1, 1)
+        directions_to_check = [-1, 0, 1]
+        players = [player_who_played, player_to_check_pawn]
+
+        for direction_to_check in directions_to_check:
+            for direction_to_check_bis in directions_to_check:
+
+                if not (direction_to_check == 0 and direction_to_check_bis == 0):
+                    players = self.check_pawn_to_still_by_value(position_played, players[0], players[1],
+                                                                direction_to_check, direction_to_check_bis)
 
         return players
 
     def check_if_a_pawn_have_to_swap_team(self, player_who_played, player_to_check_pawn, position_played):
 
         player_to_check_pawn_start_copy = player_to_check_pawn
+        nb_pawn_at_start = len(player_who_played.pawn_set)
 
         player_who_played, player_to_check_pawn = self.swap_type_if_spawn_circled(player_who_played, player_to_check_pawn, position_played)
 
@@ -128,7 +130,9 @@ class Game:
             self.p1 = player_who_played
             self.p2 = player_to_check_pawn
 
-        return True
+
+        nb_pawn_stolen = len(player_who_played.pawn_set) - nb_pawn_at_start
+        return nb_pawn_stolen
 
     def start_game(self):
 
