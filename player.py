@@ -52,6 +52,14 @@ class Player:
         self.console.print(
             "player { \n  name: \"" + self.name + "\",\n  couleur: \"" + self.couleur + "\"\n  pawn: [" + set_creation + "\n  ]\n}")
 
+
+    def get_nb_point_heuristique(self):
+        nb_point = 0
+        for pawn in self.pawn_set:
+            nb_point += config.STATIC_VALUES_OTHELLO[pawn["x"]][pawn["y"]]
+        return nb_point
+
+
     def is_a_right_position(self, map: list, position: dict, current_player):
 
         positions_arround = [(-1, -1), (0, -1), (1, -1),
@@ -189,9 +197,18 @@ class Player:
             game_simulate.update_map()
 
             possible_plays_result[play_index]["case_static_value"] = config.STATIC_VALUES_OTHELLO[play.get("x")][play.get("y")]
+            possible_plays_result[play_index]["nb_point_total_current_heurastique"] = current_player_copy.get_nb_point_heuristique()
+            possible_plays_result[play_index]["nb_point_total_enemy_heurastique"] = enemy_player_copy.get_nb_point_heuristique()
+            possible_plays_result[play_index]["nb_pawn_current"] = len(current_player_copy.pawn_set)
+            possible_plays_result[play_index]["nb_pawn_enemy"] = len(enemy_player_copy.pawn_set)
             possible_plays_result[play_index]["current_player"] = "current" if (total_depth - (depth_still_to_do + 1)) % 2 == 0 else "enemy"
             possible_plays_result[play_index]["move"] = current_player_copy.get_best_play(game_simulate.map, enemy_player_copy,
                                                                            current_player_copy, depth_still_to_do, total_depth)
+
+            for index_under_move in range(0, len(possible_plays_result[play_index]["move"])):
+                possible_plays_result[play_index]["move"][index_under_move]["nb_moves_ally_generated"] = len(possible_plays_result[play_index]["move"])
+                possible_plays_result[play_index]["move"][index_under_move]["nb_moves_enemy_generated"] = len(possible_plays)
+
 
         return possible_plays_result
 
@@ -199,100 +216,76 @@ class Player:
     def ia_play(self, map, enemy_player, total_depth=1):
 
         moves = self.get_best_play(map, self, enemy_player, total_depth, total_depth)
-        self.write_moves(moves)
+        #self.write_moves(moves)
 
-        """
-            TODO
-                -> implement IA method to play
-        """
-
-        move_to_do = self.select_a_move(moves) if len(moves) > 0 else {"x": -1, "y": -1}
+        move_to_do = self.min_max(moves, 0) if len(moves) > 0 else {"x": -1, "y": -1}
         self.do_the_play(move_to_do["x"], move_to_do["y"], map, self)
 
         return move_to_do
 
 
-    def select_a_move(self, moves: list):
+    def min_max(self, moves, depth):
 
-        if self.ai_type == Player.POSITIONAL:
-            return self.move_positional(moves)
-        if self.ai_type == Player.MOBILITY:
-            return self.move_mobility(moves)
-        if self.ai_type == Player.MIXT:
-            return self.move_mixt(moves)
-        if self.ai_type == Player.ABSOLUTE:
-            return self.move_absolute(moves)
-
-        return moves[0]
-
-
-    def move_positional(self, moves: list):
-
-        total_pods_for_each_init_move = self.get_pods_for_move(moves, 0)
-        pods_selected = None
-        index_move_to_play = None
-
-        if len(total_pods_for_each_init_move) > 0:
-            pods_selected = total_pods_for_each_init_move[0]
-            index_move_to_play = 0
-
-        for index_pods in range(1, len(total_pods_for_each_init_move)):
-
-            current_pods = total_pods_for_each_init_move[index_pods]
-
-            if pods_selected[0] - pods_selected[1] < current_pods[0] - current_pods[1]:
-                index_move_to_play = index_pods
-                pods_selected = current_pods
-
-        return moves[index_move_to_play]
-
-
-    def get_pods_for_move(self, moves: list, current_depth):
-
-        pods_for_initial_plays = []
-
-        total_pods_current_player = 0
-        total_pods_enemy_player = 0
+        values = []
+        type_player = None
 
         for move in moves:
 
-            list_total_pods = self.get_pods_for_move(move["move"], current_depth + 1)
+            next_move = move["move"]
 
-            total_pods_current_player = list_total_pods[0]
-            total_pods_enemy_player = list_total_pods[1]
+            type_player = move["current_player"]
 
-            if move["current_player"] == "current":
-                total_pods_current_player += move["case_static_value"]
+            if len(next_move) > 0:
+                values.append(self.min_max(move["move"], depth + 1))
             else:
-                total_pods_enemy_player += move["case_static_value"]
+                values.append(self.evaluate(move))
 
-            if current_depth == 0:
-                pods_for_initial_plays.append((total_pods_current_player, total_pods_enemy_player))
-                total_pods_current_player = 0
-                total_pods_enemy_player = 0
+        if depth == 0:
+            return moves[list.index(values, max(values))]
 
+        if type_player == "current":
+            return max(values)
 
-
-        if current_depth == 0:
-            return pods_for_initial_plays
-
-        return total_pods_current_player, total_pods_enemy_player
+        return min(values)
 
 
-    def move_mobility(self, moves: list):
-            return moves[0]
+    def evaluate(self, move):
+
+        """
+            TODO
+                -> update evaluate function for other methods
+        """
+
+        if self.ai_type == Player.POSITIONAL:
+            return move["nb_point_total_current_heurastique"] - move["nb_point_total_enemy_heurastique"]
+        if self.ai_type == Player.ABSOLUTE:
+            return move["nb_pawn_current"] - move["nb_pawn_enemy"]
+        if self.ai_type == Player.MOBILITY:
+            return self.evaluation_mobility(move)
+        if self.ai_type == Player.MIXT:
+            return None
+
+        return 0
 
 
-    def move_absolute(self, moves: list):
-        return moves[0]
+    def evaluation_mobility(self, move):
+        try:
+            nb_moves_ally_generated = move["nb_moves_ally_generated"]
+        except Exception:
+            nb_moves_ally_generated = 0
+        try:
+            nb_moves_enemy_generated = move["nb_moves_enemy_generated"]
+        except Exception:
+            nb_moves_enemy_generated = 0
 
-
-    def move_mixt(self, moves: list):
-        return moves[0]
-
+        diff_nb_moves_generated = (nb_moves_ally_generated if nb_moves_ally_generated is not None else 0) - (nb_moves_enemy_generated if nb_moves_enemy_generated is not None else 0)
+        if move["x"] == 0 or move["x"] == 7 or move["y"] == 0 or move["y"] == 7:
+            diff_nb_moves_generated += 5
+        if (move["x"] == 0 and move["y"] == 7) or (move["x"] == 0 and move["y"] == 0) \
+                or (move["x"] == 7 and move["y"] == 0) or (move["x"] == 7 and move["y"] == 7):
+            diff_nb_moves_generated += 5
+        return diff_nb_moves_generated
 
     def write_moves(self, moves):
         with open("moves.txt", "w") as f:
             f.write(moves.__str__().replace("'", "\""))
-
-
