@@ -196,7 +196,7 @@ class Game:
 
         if not is_equal:
             self.console.print("\nLe joueur " + winner.name + " a gagné", style="red")
-            self.console.print("Score final : " + len(winner.pawn_set) + " - " + len(looser.pawn_set), style = "red")
+            self.console.print("Score final : " + str(len(winner.pawn_set)) + " - " + str(len(looser.pawn_set)), style = "red")
         else:
             self.console.print("\nLes deux jours sont à égalité", style="red")
 
