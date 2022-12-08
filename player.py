@@ -189,6 +189,7 @@ class Player:
             game_simulate.update_map()
 
             possible_plays_result[play_index]["case_static_value"] = config.STATIC_VALUES_OTHELLO[play.get("x")][play.get("y")]
+            possible_plays_result[play_index]["current_player"] = "current" if depth_still_to_do % 2 == 0 else "enemy"
             possible_plays_result[play_index]["move"] = current_player_copy.get_best_play(game_simulate.map, enemy_player_copy,
                                                                            current_player_copy, depth_still_to_do, total_depth)
 
@@ -197,18 +198,15 @@ class Player:
 
     def ia_play(self, map, enemy_player, total_depth=1):
 
-        """
-        TODO
-            -> implement IA method to play
-        """
-
         moves = self.get_best_play(map, self, enemy_player, total_depth, total_depth)
+        self.write_moves(moves)
 
-        #self.write_moves(moves)
+        """
+            TODO
+                -> implement IA method to play
+        """
 
-        moves_to_do = self.select_a_move(moves)
-
-        move_to_do = moves[0] if len(moves) > 0 else {"x": -1, "y": -1}
+        move_to_do = self.select_a_move(moves) if len(moves) > 0 else {"x": -1, "y": -1}
         self.do_the_play(move_to_do["x"], move_to_do["y"], map, self)
 
         return move_to_do
@@ -217,7 +215,7 @@ class Player:
     def select_a_move(self, moves: list):
 
         if self.ai_type == Player.POSITIONAL:
-            return self.move_positional(moves)
+            return self.move_positional(moves, 0, 0)
         if self.ai_type == Player.MOBILITY:
             return self.move_mobility(moves)
         if self.ai_type == Player.MIXT:
@@ -228,17 +226,21 @@ class Player:
         return moves[0]
 
 
-    def move_positional(self, moves: list):
+    def move_positional(self, moves: list, total_pods_current_player, total_pods_enemy_player):
         return moves[0]
+
 
     def move_mobility(self, moves: list):
             return moves[0]
 
+
     def move_absolute(self, moves: list):
         return moves[0]
 
-    def move_mixte(self, moves: list):
+
+    def move_mixt(self, moves: list):
         return moves[0]
+
 
     def write_moves(self, moves):
         with open("moves.txt", "w") as f:
