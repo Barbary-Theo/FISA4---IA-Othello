@@ -1,5 +1,3 @@
-import json
-
 from rich import console
 
 import game
@@ -218,13 +216,13 @@ class Player:
         moves = self.get_best_play(map, self, enemy_player, total_depth, total_depth)
         #self.write_moves(moves)
 
-        move_to_do = self.min_max(moves, 0) if len(moves) > 0 else {"x": -1, "y": -1}
+        move_to_do = self.min_max(moves, map, 0) if len(moves) > 0 else {"x": -1, "y": -1}
         self.do_the_play(move_to_do["x"], move_to_do["y"], map, self)
 
         return move_to_do
 
 
-    def min_max(self, moves, depth):
+    def min_max(self, moves, map, depth):
 
         values = []
         type_player = None
@@ -236,9 +234,9 @@ class Player:
             type_player = move["current_player"]
 
             if len(next_move) > 0:
-                values.append(self.min_max(move["move"], depth + 1))
+                values.append(self.min_max(move["move"], map, depth + 1))
             else:
-                values.append(self.evaluate(move))
+                values.append(self.evaluate(move, map))
 
         if depth == 0:
             return moves[list.index(values, max(values))]
@@ -249,24 +247,46 @@ class Player:
         return min(values)
 
 
-    def evaluate(self, move):
-
-        """
-            TODO
-                -> update evaluate function for other methods
-        """
-
+    def evaluate(self, move, game_map):
         if self.ai_type == Player.POSITIONAL:
-            return move["nb_point_total_current_heurastique"] - move["nb_point_total_enemy_heurastique"]
+            return self.evaluation_positional(move)
         if self.ai_type == Player.ABSOLUTE:
-            return move["nb_pawn_current"] - move["nb_pawn_enemy"]
+            return self.evaluation_absolute(move)
         if self.ai_type == Player.MOBILITY:
             return self.evaluation_mobility(move)
         if self.ai_type == Player.MIXT:
-            return None
-
+            if self.get_num_tour(game_map) < 22:
+                return self.evaluation_positional(move)
+            if self.get_nb_empty_cell(game_map) >= 14:
+                return self.evaluation_absolute(move)
+            return self.evaluation_mobility(move)
         return 0
 
+
+    def  get_num_tour(self, game_map):
+        nb = 0
+        for row in game_map:
+            for cell in row:
+                if cell != ".":
+                    nb += 1
+        return nb
+
+
+    def  get_nb_empty_cell(self, game_map):
+        nb = 0
+        for row in game_map:
+            for cell in row:
+                if cell == ".":
+                    nb += 1
+        return nb
+
+
+    def evaluation_absolute(self, move):
+        return move["nb_pawn_current"] - move["nb_pawn_enemy"]
+
+
+    def evaluation_positional(self, move):
+        return move["nb_point_total_current_heurastique"] - move["nb_point_total_enemy_heurastique"]
 
     def evaluation_mobility(self, move):
         try:
