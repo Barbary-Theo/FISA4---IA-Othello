@@ -6,6 +6,17 @@ from rich import console
 class Game:
     console = console.Console()
 
+    STATIC_VALUES_OTHELLO = [
+        [500, -150, 30, 10, 10, 30, -150, 500],
+        [-150, -250, 0, 0, 0, 0, -250, -150],
+        [30, 0, 1, 2, 2, 1, 0, 30],
+        [10, 0, 2, 16, 16, 2, 0, 10],
+        [10, 0, 2, 16, 16, 2, 0, 10],
+        [30, 0, 1, 2, 2, 1, 0, 30],
+        [-150, -250, 0, 0, 0, 0, -250, -150],
+        [500, -150, 30, 10, 10, 30, -150, 500],
+    ]
+
     def __init__(self, p1: Player = None, p2: Player = None,
                  nb_row=8, nb_col=8,
                  depth=1):
@@ -191,12 +202,11 @@ class Game:
     def display_report(self):
 
         winner = self.p1 if len(self.p1.pawn_set) > len(self.p2.pawn_set) else self.p2
-        looser = self.p2 if len(self.p1.pawn_set) > len(self.p2.pawn_set) else self.p1
         is_equal = len(self.p1.pawn_set) == len(self.p2.pawn_set)
 
         if not is_equal:
             self.console.print("\nLe joueur " + winner.name + " a gagné", style="red")
-            self.console.print("Score final : " + str(len(winner.pawn_set)) + " - " + str(len(looser.pawn_set)), style = "red")
+            self.console.print("Score final : " + str(len(self.p1.pawn_set)) + " - " + str(len(self.p2.pawn_set)), style = "red")
         else:
             self.console.print("\nLes deux jours sont à égalité", style="red")
 

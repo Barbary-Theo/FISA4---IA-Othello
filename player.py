@@ -1,7 +1,6 @@
 from rich import console
 
 import game
-import config
 
 
 class Player:
@@ -54,7 +53,7 @@ class Player:
     def get_nb_point_heuristique(self):
         nb_point = 0
         for pawn in self.pawn_set:
-            nb_point += config.STATIC_VALUES_OTHELLO[pawn["x"]][pawn["y"]]
+            nb_point += game.Game.STATIC_VALUES_OTHELLO[pawn["x"]][pawn["y"]]
         return nb_point
 
 
@@ -194,7 +193,7 @@ class Player:
             possible_plays_result[play_index]["nb_stolen"] = game_simulate.check_if_a_pawn_have_to_swap_team(current_player_copy, enemy_player_copy, {"x": play["x"], "y": play["y"]})
             game_simulate.update_map()
 
-            possible_plays_result[play_index]["case_static_value"] = config.STATIC_VALUES_OTHELLO[play.get("x")][play.get("y")]
+            possible_plays_result[play_index]["case_static_value"] = game.Game.STATIC_VALUES_OTHELLO[play.get("x")][play.get("y")]
             possible_plays_result[play_index]["nb_point_total_current_heurastique"] = current_player_copy.get_nb_point_heuristique()
             possible_plays_result[play_index]["nb_point_total_enemy_heurastique"] = enemy_player_copy.get_nb_point_heuristique()
             possible_plays_result[play_index]["nb_pawn_current"] = len(current_player_copy.pawn_set)
@@ -303,7 +302,7 @@ class Player:
             diff_nb_moves_generated += 5
         if (move["x"] == 0 and move["y"] == 7) or (move["x"] == 0 and move["y"] == 0) \
                 or (move["x"] == 7 and move["y"] == 0) or (move["x"] == 7 and move["y"] == 7):
-            diff_nb_moves_generated += 5
+            diff_nb_moves_generated += 8
         return diff_nb_moves_generated
 
     def write_moves(self, moves):
