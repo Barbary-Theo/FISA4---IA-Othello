@@ -8,7 +8,7 @@ class Game:
 
     def __init__(self, p1: Player = None, p2: Player = None,
                  nb_row=8, nb_col=8,
-                 depth=2):
+                 depth=1):
 
         self.p1 = p1
         self.p2 = p2
@@ -134,6 +134,7 @@ class Game:
         nb_pawn_stolen = len(player_who_played.pawn_set) - nb_pawn_at_start
         return nb_pawn_stolen
 
+
     def start_game(self):
 
         position_error = {"x": -1, "y": -1}
@@ -182,5 +183,19 @@ class Game:
             self.update_map()
             self.check_if_a_pawn_have_to_swap_team(self.p2, self.p1, position_played)
             self.update_map()
+
+
+        self.display_report()
+
+
+    def display_report(self):
+
+        winner = self.p1 if len(self.p1.pawn_set) > len(self.p2.pawn_set) else self.p2
+        is_equal = len(self.p1.pawn_set) == len(self.p2.pawn_set)
+
+        if not is_equal:
+            self.console.print("\nLe joueur " + winner.name + " a gagné", style="red")
+        else:
+            self.console.print("\nLes deux jours sont à égalité", style="red")
 
         self.console.print("Fin de partie", style="red")

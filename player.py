@@ -3,21 +3,29 @@ import json
 from rich import console
 
 import game
-import player
+import config
 
 
 class Player:
     console = console.Console()
+
     REAL = "real"
     AI = "ai"
+
     WHITE = "o"
     BLACK = "x"
+
+    POSITIONAL = "positional"
+    ABSOLUTE = "absolute"
+    MOBILITY = "mobility"
+    MIXT = "mixt"
 
     def __init__(self, name: str = None,
                  couleur: str = "white",
                  pawn_set: list = None,
                  type: str = "real",
-                 symbol: str = WHITE):
+                 symbol: str = WHITE,
+                 ai_type: str = POSITIONAL):
 
         if pawn_set is None:
             pawn_set = []
@@ -26,6 +34,7 @@ class Player:
         self.pawn_set = pawn_set
         self.type = type
         self.symbol = symbol
+        self.ai_type = ai_type
 
 
     def __copy__(self):
@@ -150,12 +159,12 @@ class Player:
         return possible_plays
 
 
-    def get_best_play(self, map, current_player, enemy_player, depth_still_to_do):
+    def get_best_play(self, map, current_player, enemy_player, depth_still_to_do, total_depth):
 
-        if depth_still_to_do == 0:
+        if depth_still_to_do < 0:
             return []
 
-        possible_plays = self.get_possible_position(map, current_player, enemy_player)
+        possible_plays = current_player.get_possible_position(map, current_player, enemy_player)
         possible_plays_result = possible_plays.copy()
 
         if len(possible_plays) == 0:
@@ -164,6 +173,7 @@ class Player:
         depth_still_to_do -= 1
 
         for play_index in range(len(possible_plays)):
+            possible_plays_result[play_index]["depth"] = total_depth - (depth_still_to_do + 1)
 
             current_player_copy = current_player.__copy__()
             enemy_player_copy = enemy_player.__copy__()
@@ -175,23 +185,28 @@ class Player:
             game_simulate = game.Game(p1, p2, 8, 8, depth_still_to_do)
             current_player_copy.do_the_play(play["x"], play["y"], game_simulate.map, p2)
             game_simulate.update_map()
-            game_simulate.check_if_a_pawn_have_to_swap_team(current_player_copy, enemy_player_copy, {"x": play["x"], "y": play["y"]})
+            possible_plays_result[play_index]["nb_stolen"] = game_simulate.check_if_a_pawn_have_to_swap_team(current_player_copy, enemy_player_copy, {"x": play["x"], "y": play["y"]})
             game_simulate.update_map()
 
+            possible_plays_result[play_index]["case_static_value"] = config.STATIC_VALUES_OTHELLO[play.get("x")][play.get("y")]
             possible_plays_result[play_index]["move"] = current_player_copy.get_best_play(game_simulate.map, enemy_player_copy,
-                                                                           current_player_copy, depth_still_to_do)
+                                                                           current_player_copy, depth_still_to_do, total_depth)
 
         return possible_plays_result
 
 
-    def ia_play(self, map, enemy_player, total_depth=2):
+    def ia_play(self, map, enemy_player, total_depth=1):
 
         """
         TODO
             -> implement IA method to play
         """
 
-        moves = self.get_best_play(map, self, enemy_player, total_depth - 1)
+        moves = self.get_best_play(map, self, enemy_player, total_depth, total_depth)
+
+        #self.write_moves(moves)
+
+        moves_to_do = self.select_a_move(moves)
 
         move_to_do = moves[0] if len(moves) > 0 else {"x": -1, "y": -1}
         self.do_the_play(move_to_do["x"], move_to_do["y"], map, self)
@@ -199,5 +214,34 @@ class Player:
         return move_to_do
 
 
+    def select_a_move(self, moves: list):
+
+        if self.ai_type == Player.POSITIONAL:
+            return self.move_positional(moves)
+        if self.ai_type == Player.MOBILITY:
+            return self.move_mobility(moves)
+        if self.ai_type == Player.MIXT:
+            return self.move_mixt(moves)
+        if self.ai_type == Player.ABSOLUTE:
+            return self.move_absolute(moves)
+
+        return moves[0]
+
+
+    def move_positional(self, moves: list):
+        return moves[0]
+
+    def move_mobility(self, moves: list):
+            return moves[0]
+
+    def move_absolute(self, moves: list):
+        return moves[0]
+
+    def move_mixte(self, moves: list):
+        return moves[0]
+
+    def write_moves(self, moves):
+        with open("moves.txt", "w") as f:
+            f.write(moves.__str__().replace("'", "\""))
 
 
