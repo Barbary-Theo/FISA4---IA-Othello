@@ -149,6 +149,7 @@ class Game:
     def start_game(self):
 
         position_error = {"x": -1, "y": -1}
+        tour = 1
 
         while True:
             self.console.print(
@@ -161,10 +162,10 @@ class Game:
 
             self.print()
 
-            if self.p1.type == "real":
+            if self.p1.type == Player.REAL:
                 position_played = self.p1.play(self.map, self.p2)
             else:
-                position_played = self.p1.ia_play(self.map, self.p2, self.depth)
+                position_played = self.p1.ia_play(self.map, self.p2, self.depth, tour)
 
             if position_played == position_error:
                 break
@@ -183,10 +184,10 @@ class Game:
 
             self.print()
 
-            if self.p2.type == "real":
+            if self.p2.type == Player.REAL:
                 position_played = self.p2.play(self.map, self.p1)
             else:
-                position_played = self.p2.ia_play(self.map, self.p1, self.depth)
+                position_played = self.p2.ia_play(self.map, self.p1, self.depth, tour)
 
             if position_played == position_error:
                 break
@@ -194,6 +195,8 @@ class Game:
             self.update_map()
             self.check_if_a_pawn_have_to_swap_team(self.p2, self.p1, position_played)
             self.update_map()
+
+            tour += 1
 
 
         self.display_report()

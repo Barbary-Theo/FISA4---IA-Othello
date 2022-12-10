@@ -1,3 +1,5 @@
+import time
+
 from rich import console
 
 import game
@@ -164,21 +166,22 @@ class Player:
         return possible_plays
 
 
-    def get_best_play(self, map, current_player, enemy_player, depth_still_to_do, total_depth):
+    def get_all_plays(self, map, current_player, enemy_player, depth_still_to_do, total_depth, nb_iter):
 
         if depth_still_to_do < 0:
-            return []
+            return [], nb_iter
 
         possible_plays = current_player.get_possible_position(map, current_player, enemy_player)
         possible_plays_result = possible_plays.copy()
 
         if len(possible_plays) == 0:
-            return []
+            return [], nb_iter
 
         depth_still_to_do -= 1
 
         for play_index in range(len(possible_plays)):
             possible_plays_result[play_index]["depth"] = total_depth - (depth_still_to_do + 1)
+            nb_iter += 1
 
             current_player_copy = current_player.__copy__()
             enemy_player_copy = enemy_player.__copy__()
@@ -199,22 +202,30 @@ class Player:
             possible_plays_result[play_index]["nb_pawn_current"] = len(current_player_copy.pawn_set)
             possible_plays_result[play_index]["nb_pawn_enemy"] = len(enemy_player_copy.pawn_set)
             possible_plays_result[play_index]["current_player"] = "current" if (total_depth - (depth_still_to_do + 1)) % 2 == 0 else "enemy"
-            possible_plays_result[play_index]["move"] = current_player_copy.get_best_play(game_simulate.map, enemy_player_copy,
-                                                                           current_player_copy, depth_still_to_do, total_depth)
+            moves = current_player_copy.get_all_plays(game_simulate.map, enemy_player_copy,
+                                                      current_player_copy, depth_still_to_do, total_depth, nb_iter)
+            possible_plays_result[play_index]["move"] = moves[0]
+            nb_iter = moves[1]
 
             for index_under_move in range(0, len(possible_plays_result[play_index]["move"])):
                 possible_plays_result[play_index]["move"][index_under_move]["nb_moves_ally_generated"] = len(possible_plays_result[play_index]["move"])
                 possible_plays_result[play_index]["move"][index_under_move]["nb_moves_enemy_generated"] = len(possible_plays)
 
+        return [possible_plays_result, nb_iter]
 
-        return possible_plays_result
 
+    def ia_play(self, map, enemy_player, total_depth=1, tour=1):
 
-    def ia_play(self, map, enemy_player, total_depth=1):
+        deb = time.time()
 
-        moves = self.get_best_play(map, self, enemy_player, total_depth, total_depth)
-        move_to_do = self.min_max(moves, map, 0) if len(moves) > 0 else {"x": -1, "y": -1}
+        moves = self.get_all_plays(map, self, enemy_player, total_depth, total_depth, 0)
+        move_to_do = self.min_max(moves[0], map, 0) if len(moves[0]) > 0 else {"x": -1, "y": -1}
         self.do_the_play(move_to_do["x"], move_to_do["y"], map, self)
+
+        fin = time.time()
+
+        with open(f"iter-{self.ai_type}-{total_depth}.csv", "a") as f:
+            f.write(f"{tour};{moves[1]}; {fin - deb}; {self.ai_type};{total_depth};\n")
 
         return move_to_do
 
