@@ -68,7 +68,7 @@ def launch_normal_game():
 
 
 def prog():
-    launch_normal_game()
+    launch_iteration_mode()
 
 
 if __name__ == "__main__":

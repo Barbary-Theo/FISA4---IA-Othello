@@ -165,7 +165,7 @@ class Game:
             if self.p1.type == Player.REAL:
                 position_played = self.p1.play(self.map, self.p2)
             else:
-                position_played = self.p1.ia_play(self.map, self.p2, self.depth, tour)
+                position_played = self.p1.ia_play(self.map, self.p2, self.depth, tour, "p1")
 
             if position_played == position_error:
                 break
@@ -187,7 +187,7 @@ class Game:
             if self.p2.type == Player.REAL:
                 position_played = self.p2.play(self.map, self.p1)
             else:
-                position_played = self.p2.ia_play(self.map, self.p1, self.depth, tour)
+                position_played = self.p2.ia_play(self.map, self.p1, self.depth, tour, "p2")
 
             if position_played == position_error:
                 break

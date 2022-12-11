@@ -214,7 +214,7 @@ class Player:
         return [possible_plays_result, nb_iter]
 
 
-    def ia_play(self, map, enemy_player, total_depth=1, tour=1):
+    def ia_play(self, map, enemy_player, total_depth=1, tour=1, player="p1"):
 
         deb = time.time()
 
@@ -224,8 +224,9 @@ class Player:
 
         fin = time.time()
 
-        with open(f"iter-{self.ai_type}-{total_depth}.csv", "a") as f:
-            f.write(f"{tour};{moves[1]}; {fin - deb}; {self.ai_type};{total_depth};\n")
+        if player == "p1":
+            with open(f"iter-{self.ai_type}-{total_depth}.csv", "a") as f:
+                f.write(f"{tour};{moves[1]}; {fin - deb}; {self.ai_type};{total_depth};\n")
 
         return move_to_do
 
